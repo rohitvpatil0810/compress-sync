@@ -16,6 +16,7 @@ datasource db {
 model Request {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
   status   Status    @default(IN_QUEUE)
+  fileUrl  String
   products Product[]
 }
 
