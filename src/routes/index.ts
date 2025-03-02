@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { SuccessResponse } from "../core/ApiResponse";
 import imageRouter from "./imageRouter";
-import csvProcesserRotuer from "./csvProcesserRotuer";
+import csvProcesserRouter from "./csvProcesserRouter";
 
 const router = Router();
 
 router.use("/images", imageRouter);
-router.use(csvProcesserRotuer);
+router.use(csvProcesserRouter);
 
 router.get("/", (req: Request, res: Response, next: NextFunction) => {
   try {

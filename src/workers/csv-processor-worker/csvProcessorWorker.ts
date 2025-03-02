@@ -4,7 +4,7 @@ import prisma from "../../utils/prismaClient";
 import axios from "axios";
 import Logger from "../../core/Logger";
 import csv from "csv-parser";
-import { csvSchema } from "./csvvalidations";
+import { csvSchema } from "./csvValidations";
 import { Status } from ".prisma/client";
 
 interface CSVRow {
