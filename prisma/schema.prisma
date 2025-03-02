@@ -25,6 +25,7 @@ model Product {
   request   Request? @relation(fields: [requestId], references: [id])
   requestId String?  @db.ObjectId
   name      String
+  srNo      BigInt
   images    Image[]
 }
 
