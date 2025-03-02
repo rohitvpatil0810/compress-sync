@@ -12,3 +12,33 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+model Request {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  status   Status    @default(IN_QUEUE)
+  products Product[]
+}
+
+model Product {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  request   Request? @relation(fields: [requestId], references: [id])
+  requestId String?  @db.ObjectId
+  name      String
+  images    Image[]
+}
+
+model Image {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @db.ObjectId
+  inputURL  String
+  outputURL String?
+  status    Status   @default(IN_QUEUE)
+}
+
+enum Status {
+  IN_QUEUE
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
