@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { SuccessResponse } from "../core/ApiResponse";
+import imageRouter from "./imageRouter";
 
 const router = Router();
+
+router.use("/images", imageRouter);
 
 router.get("/", (req: Request, res: Response, next: NextFunction) => {
   try {
