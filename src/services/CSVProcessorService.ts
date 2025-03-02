@@ -1,3 +1,4 @@
+import { csvProcessorQueue } from "../queues/csvProcessorQueue";
 import prisma from "../utils/prismaClient";
 import CloudflareR2ObjectService from "./CloudflareR2ObjectService";
 
@@ -10,6 +11,8 @@ class CSVProcessorService {
         fileUrl: csvFileUrl,
       },
     });
+
+    csvProcessorQueue.add(request.id, { requestId: request.id });
 
     return { requestId: request.id, status: request.status };
   }
