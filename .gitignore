@@ -1,0 +1,55 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore build output
+/dist/
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.iml
+
+# Ignore npm/yarn lock files
+package-lock.json
+yarn.lock
+
+# Ignore TypeScript declaration files
+*.d.ts
+
+# Ignore test coverage reports
+/coverage/
+
+# Ignore environment variables file
+.env
+
+# Ignore logs
+*.log
+
+# Ignore build artifacts
+/build/
+
+# Testing
+coverage
+
+# Turbo
+.turbo
+
+# Vercel
+.vercel
+
+# Build Outputs
+.next/
+out/
+build
+dist
+
+# Ignore any other temporary or generated files
+**/tmp/
+**/temp/
+**/logs/
+**/backup/
+**/cache/
+**/out/
+**/dist/
+**/node_modules/
+**/package-lock.json
