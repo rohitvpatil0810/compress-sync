@@ -16,8 +16,8 @@ class CloudflareR2ObjectService {
     this.s3 = new S3Client(r2Config.s3);
   }
 
-  // Uploads an image to R2 S3
-  async uploadImage(file: Express.Multer.File) {
+  // Uploads file to R2 S3
+  async uploadFile(file: Express.Multer.File) {
     const key = uuidv4() + "-" + file.originalname;
     try {
       const uploadParams = {
@@ -35,8 +35,8 @@ class CloudflareR2ObjectService {
     }
   }
 
-  // Gets an image from R2 S3
-  async getImage(key: string) {
+  // Gets a file from R2 S3
+  async getFile(key: string) {
     try {
       const command = new GetObjectCommand({
         Bucket: r2Config.bucket,
