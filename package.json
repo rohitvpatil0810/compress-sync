@@ -5,7 +5,8 @@
   "main": "build/server.js",
   "scripts": {
     "migrate-db": "npx prisma migrate deploy",
-    "start": "npm run build && npm run serve",
+    "start": "npm run build && npm run serve && npm run start-csv-processor-worker",
+    "start-csv-processor-worker": "node -r dotenv/config build/workers/csv-processor-worker/csvProcessorWorker.js",
     "serve": "node -r dotenv/config build/server.js",
     "build": "npm run clean && npm run build-ts",
     "pre-dev": "echo 'Running pre dev'",
