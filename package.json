@@ -9,7 +9,7 @@
     "serve": "node -r dotenv/config build/server.js",
     "build": "npm run clean && npm run build-ts",
     "pre-dev": "echo 'Running pre dev'",
-    "dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node,CSV-Processor\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\" \"npm run csv-processor-worker\"",
     "watch-node": "nodemon -r dotenv/config build/server.js",
     "clean": "rimraf ./build",
     "build-ts": "tsc",
@@ -17,7 +17,8 @@
     "check": "tsc --noEmit",
     "eslint": "eslint . --ext .js,.ts",
     "upgrade": "npm update --save-dev && npm update --save",
-    "upgrade-latest": "npx npm-check-updates -u && npm install "
+    "upgrade-latest": "npx npm-check-updates -u && npm install ",
+    "csv-processor-worker": "nodemon -r dotenv/config build/workers/csv-processor-worker/csvProcessorWorker.js"
   },
   "repository": {
     "type": "git",
