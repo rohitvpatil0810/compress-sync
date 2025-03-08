@@ -11,5 +11,8 @@ csvProcesserRotuer.post(
   CSVProcessorController.uploadCSV
 );
 csvProcesserRotuer.get("/status/:requestId", CSVProcessorController.getStatus);
-
+csvProcesserRotuer.get(
+  "/download/:requestId",
+  CSVProcessorController.downloadOutputCSV
+);
 export default csvProcesserRotuer;
