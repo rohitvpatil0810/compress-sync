@@ -35,6 +35,29 @@ class CloudflareR2ObjectService {
     }
   }
 
+  // Uploads file to R2 S3
+  async uploadFileFromBuffer(
+    fileBuffer: Buffer,
+    filename: string,
+    contentType: string
+  ): Promise<string> {
+    const key = "compressed-" + filename;
+    try {
+      const uploadParams = {
+        Bucket: r2Config.bucket,
+        Key: key,
+        Body: fileBuffer,
+        ContentType: contentType,
+      };
+
+      const command = new PutObjectCommand(uploadParams);
+      await this.s3.send(command);
+      return baseUrl + "/images/" + key;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Gets a file from R2 S3
   async getFile(key: string) {
     try {
