@@ -7,6 +7,7 @@ import csv from "csv-parser";
 import { csvSchema } from "./csvValidations";
 import { Status } from ".prisma/client";
 import { imageCompressorQueue } from "../../queues/imageCompressorQueue";
+import CloudflareR2ObjectService from "../../services/CloudflareR2ObjectService";
 
 interface CSVRow {
   serialNumber: number;
@@ -96,6 +97,14 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
     });
 
     Logger.info(`${records.length} records saved to MongoDB`);
+
+    Logger.info(
+      `Deleting CSV file froom cloudflare (requestId : ${requestId})...`
+    );
+    await CloudflareR2ObjectService.deleteFile(
+      request.fileUrl.split("/").pop() || ""
+    );
+
     Logger.info(
       `Sending request to image compressor queue (requestId : ${requestId})...`
     );

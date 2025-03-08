@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -71,6 +72,19 @@ class CloudflareR2ObjectService {
       });
 
       return signedUrl;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Deletes a file from R2 S3
+  async deleteFile(key: string) {
+    try {
+      const command = new DeleteObjectCommand({
+        Bucket: r2Config.bucket,
+        Key: key,
+      });
+      await this.s3.send(command);
     } catch (error) {
       throw error;
     }
