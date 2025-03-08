@@ -6,6 +6,8 @@ import Logger from "../../core/Logger";
 import csv from "csv-parser";
 import { csvSchema } from "./csvValidations";
 import { Status } from ".prisma/client";
+import { imageCompressorQueue } from "../../queues/imageCompressorQueue";
+import CloudflareR2ObjectService from "../../services/CloudflareR2ObjectService";
 
 interface CSVRow {
   serialNumber: number;
@@ -27,7 +29,7 @@ const csvProcessorWorker = new Worker(
 
 const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
   try {
-    const request = await prisma.request.update({
+    let request = await prisma.request.update({
       where: { id: requestId },
       data: {
         status: Status.IN_PROGRESS,
@@ -36,6 +38,10 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
         fileUrl: true,
       },
     });
+
+    if (!request.fileUrl) {
+      throw new Error("File not found");
+    }
     const file = await axios.get(request.fileUrl, { responseType: "stream" });
 
     const records: CSVRow[] = [];
@@ -68,10 +74,8 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
 
     // Log validation errors (if any)
     if (errors.length > 0) {
-      Logger.error(
-        `Validation Errors (requestId : ${requestId}) :`,
-        JSON.stringify(errors, null, 2)
-      );
+      Logger.error(`Validation Errors (requestId : ${requestId}) :`, errors);
+      throw Error("Validation Errors", { cause: errors });
     }
 
     Logger.info(
@@ -95,11 +99,37 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
     });
 
     Logger.info(`${records.length} records saved to MongoDB`);
-  } catch (error) {
+
+    Logger.info(
+      `Deleting CSV file froom cloudflare (requestId : ${requestId})...`
+    );
+    await CloudflareR2ObjectService.deleteFile(
+      request.fileUrl.split("/").pop() || ""
+    );
+
+    Logger.info(
+      `Sending request to image compressor queue (requestId : ${requestId})...`
+    );
+    imageCompressorQueue.add(requestId, { requestId: requestId });
+  } catch (error: Error | any) {
     Logger.error(
       `Error in saveCSVFileDataToDB (reqeustId : ${requestId}): `,
       error
     );
+    try {
+      await prisma.request.update({
+        where: { id: requestId },
+        data: {
+          status: Status.FAILED,
+          error: error.toString() + " : " + JSON.stringify(error.cause),
+        },
+      });
+    } catch (error) {
+      Logger.error(
+        `Error in updating request status to failed (requestId : ${requestId}): `,
+        error
+      );
+    }
   }
 };
 

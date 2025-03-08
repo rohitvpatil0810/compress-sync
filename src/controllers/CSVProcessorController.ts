@@ -20,6 +20,42 @@ class CSVProcessorController {
       next(error);
     }
   }
+
+  async getStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const requestId = req.params.requestId;
+      if (!requestId) throw new BadRequestError("Request Id is required");
+      const response = await CSVProcessorService.getStatus(requestId);
+      return new SuccessResponse("Status fetched successfully", response).send(
+        res
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async downloadOutputCSV(req: Request, res: Response, next: NextFunction) {
+    try {
+      const requestId = req.params.requestId;
+      if (!requestId) throw new BadRequestError("Request Id is required");
+      const response = await CSVProcessorService.downloadOutputCSV(requestId);
+      if (typeof response === "string") {
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename=output_${requestId}.csv`
+        );
+        return res.status(200).send(response);
+      } else {
+        return new SuccessResponse(
+          "CSV file is in queue for processing",
+          response
+        ).send(res);
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new CSVProcessorController();
