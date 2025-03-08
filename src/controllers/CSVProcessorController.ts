@@ -20,6 +20,19 @@ class CSVProcessorController {
       next(error);
     }
   }
+
+  async getStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const requestId = req.params.requestId;
+      if (!requestId) throw new BadRequestError("Request Id is required");
+      const response = await CSVProcessorService.getStatus(requestId);
+      return new SuccessResponse("Status fetched successfully", response).send(
+        res
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new CSVProcessorController();
