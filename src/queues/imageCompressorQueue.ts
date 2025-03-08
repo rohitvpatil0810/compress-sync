@@ -1,6 +1,6 @@
 import { Queue } from "bullmq";
 import { redisConfig } from "../config/redis";
 
-export const csvProcessorQueue = new Queue("csv-processing-queue", {
+export const imageCompressorQueue = new Queue("image-compressor-queue", {
   connection: redisConfig,
 });

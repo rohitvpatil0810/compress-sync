@@ -6,6 +6,7 @@ import Logger from "../../core/Logger";
 import csv from "csv-parser";
 import { csvSchema } from "./csvValidations";
 import { Status } from ".prisma/client";
+import { imageCompressorQueue } from "../../queues/imageCompressorQueue";
 
 interface CSVRow {
   serialNumber: number;
@@ -27,7 +28,7 @@ const csvProcessorWorker = new Worker(
 
 const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
   try {
-    const request = await prisma.request.update({
+    let request = await prisma.request.update({
       where: { id: requestId },
       data: {
         status: Status.IN_PROGRESS,
@@ -95,6 +96,10 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
     });
 
     Logger.info(`${records.length} records saved to MongoDB`);
+    Logger.info(
+      `Sending request to image compressor queue (requestId : ${requestId})...`
+    );
+    imageCompressorQueue.add(requestId, { requestId: requestId });
   } catch (error) {
     Logger.error(
       `Error in saveCSVFileDataToDB (reqeustId : ${requestId}): `,
