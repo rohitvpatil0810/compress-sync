@@ -16,7 +16,8 @@ datasource db {
 model Request {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   status    Status    @default(IN_QUEUE)
-  fileUrl   String
+  fileUrl   String?
+  error     String?
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

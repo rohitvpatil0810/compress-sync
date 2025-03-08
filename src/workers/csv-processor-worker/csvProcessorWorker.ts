@@ -38,6 +38,10 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
         fileUrl: true,
       },
     });
+
+    if (!request.fileUrl) {
+      throw new Error("File not found");
+    }
     const file = await axios.get(request.fileUrl, { responseType: "stream" });
 
     const records: CSVRow[] = [];
@@ -70,10 +74,8 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
 
     // Log validation errors (if any)
     if (errors.length > 0) {
-      Logger.error(
-        `Validation Errors (requestId : ${requestId}) :`,
-        JSON.stringify(errors, null, 2)
-      );
+      Logger.error(`Validation Errors (requestId : ${requestId}) :`, errors);
+      throw Error("Validation Errors", { cause: errors });
     }
 
     Logger.info(
@@ -109,11 +111,25 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
       `Sending request to image compressor queue (requestId : ${requestId})...`
     );
     imageCompressorQueue.add(requestId, { requestId: requestId });
-  } catch (error) {
+  } catch (error: Error | any) {
     Logger.error(
       `Error in saveCSVFileDataToDB (reqeustId : ${requestId}): `,
       error
     );
+    try {
+      await prisma.request.update({
+        where: { id: requestId },
+        data: {
+          status: Status.FAILED,
+          error: error.toString() + " : " + JSON.stringify(error.cause),
+        },
+      });
+    } catch (error) {
+      Logger.error(
+        `Error in updating request status to failed (requestId : ${requestId}): `,
+        error
+      );
+    }
   }
 };
 

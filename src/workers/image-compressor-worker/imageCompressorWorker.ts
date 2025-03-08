@@ -47,8 +47,21 @@ const imageCompressorWorker = new Worker(
       });
 
       Logger.info(`Request ${requestId} completed.`);
-    } catch (error) {
+    } catch (error: any) {
       Logger.error(`Error processing request ${job.data.reqeustId}: ${error}`);
+      try {
+        await prisma.request.update({
+          where: { id: job.data.reqeustId },
+          data: {
+            status: Status.FAILED,
+            error: error.toString(),
+          },
+        });
+      } catch (error) {
+        Logger.error(
+          `Error updating request ${job.data.reqeustId} to failed: ${error}`
+        );
+      }
     }
   },
   {
