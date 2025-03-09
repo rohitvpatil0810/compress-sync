@@ -22,6 +22,8 @@ GitHub Repository: [CompressSync](https://github.com/rohitvpatil0810/compress-sy
 
 Documentation Link - [Workers Documentation](https://docs.google.com/document/d/1Az20VZKQ0Jh813miIhVfwFP-xLNOplISvej3oxTd0r4/edit?usp=sharing)
 
+Sample Input CSV File - [input-compress-sync.csv](https://docs.google.com/spreadsheets/d/1FaO0s4wHM4pNJu5dz1C1hb9YDmj3Ej3tKHH9-9n00os/edit?usp=sharing)
+
 ## 🛠️ Tech Stack
 
 - **Backend**: Node.js, Express.js
