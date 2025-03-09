@@ -5,13 +5,14 @@
   "main": "build/server.js",
   "scripts": {
     "migrate-db": "npx prisma migrate deploy",
-    "start": "npm run build && npm run serve && npm run start-csv-processor-worker && npm run start-image-compressor-worker",
+    "pre-dev": "echo 'Running pre dev' && npm run build",
+    "start": "concurrently -k -p \"[{name}]\" -n \"Server,CSV-Processor,Image-Compressor,Webhook-Worker\" -c \"yellow.bold,cyan.bold,green.bold,blue.bold\" \"npm run serve\" \"npm run start-csv-processor-worker\" \"npm run start-image-compressor-worker\" \"npm run start-webhook-worker\" ",
     "start-csv-processor-worker": "node -r dotenv/config build/workers/csv-processor-worker/csvProcessorWorker.js",
     "start-image-compressor-worker": "node -r dotenv/config build/workers/image-compressor-worker/imageCompressorWorker.js",
+    "start-webhook-worker": "node -r dotenv/config build/workers/webhook-worker/webhookWorker.js",
     "serve": "node -r dotenv/config build/server.js",
     "build": "npm run clean && npm run build-ts",
-    "pre-dev": "echo 'Running pre dev'",
-    "dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node,CSV-Processor,Image-Compressor\" -c \"yellow.bold,cyan.bold,green.bold,red.bold\" \"npm run watch-ts\" \"npm run watch-node\" \"npm run csv-processor-worker\" \"npm run image-compressor-worker\"",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node,CSV-Processor,Image-Compressor,Webhook-Worker\" -c \"yellow.bold,cyan.bold,green.bold,red.bold,blue.bold\" \"npm run watch-ts\" \"npm run watch-node\" \"npm run csv-processor-worker\" \"npm run image-compressor-worker\" \"npm run webhook-worker\"",
     "watch-node": "nodemon -r dotenv/config build/server.js",
     "clean": "rimraf ./build",
     "build-ts": "tsc",
@@ -21,7 +22,8 @@
     "upgrade": "npm update --save-dev && npm update --save",
     "upgrade-latest": "npx npm-check-updates -u && npm install ",
     "csv-processor-worker": "nodemon -r dotenv/config build/workers/csv-processor-worker/csvProcessorWorker.js",
-    "image-compressor-worker": "nodemon -r dotenv/config build/workers/image-compressor-worker/imageCompressorWorker.js"
+    "image-compressor-worker": "nodemon -r dotenv/config build/workers/image-compressor-worker/imageCompressorWorker.js",
+    "webhook-worker": "nodemon -r dotenv/config build/workers/webhook-worker/webhookWorker.js"
   },
   "repository": {
     "type": "git",

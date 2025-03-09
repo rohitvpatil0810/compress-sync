@@ -7,11 +7,15 @@ class CSVProcessorController {
   async uploadCSV(req: Request, res: Response, next: NextFunction) {
     try {
       const csvFile = req.file;
+      const { webhookUrl } = req.body;
       if (!csvFile) throw new BadRequestError("Please upload a file");
       if (csvFile.mimetype !== "text/csv")
         throw new BadRequestError("Invalid file type. Expected CSV File");
 
-      const response = await CSVProcessorService.uploadCSV(csvFile);
+      const response = await CSVProcessorService.uploadCSVAndRegisterWebhookUrl(
+        csvFile,
+        webhookUrl
+      );
       return new SuccessResponse(
         "CSV file is in queue for processing",
         response

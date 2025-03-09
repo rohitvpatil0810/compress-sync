@@ -5,18 +5,32 @@ import prisma from "../utils/prismaClient";
 import CloudflareR2ObjectService from "./CloudflareR2ObjectService";
 import json2csv from "json2csv";
 class CSVProcessorService {
-  async uploadCSV(file: Express.Multer.File) {
-    const csvFileUrl = await CloudflareR2ObjectService.uploadFile(file);
+  async uploadCSVAndRegisterWebhookUrl(
+    file: Express.Multer.File,
+    webhookUrl?: string
+  ) {
+    try {
+      const csvFileUrl = await CloudflareR2ObjectService.uploadFile(file);
 
-    const request = await prisma.request.create({
-      data: {
-        fileUrl: csvFileUrl,
-      },
-    });
+      const request = await prisma.request.create({
+        data: {
+          fileUrl: csvFileUrl,
+        },
+      });
+      webhookUrl &&
+        (await prisma.webhook.create({
+          data: {
+            url: webhookUrl,
+            requestId: request.id,
+          },
+        }));
 
-    csvProcessorQueue.add(request.id, { requestId: request.id });
+      csvProcessorQueue.add(request.id, { requestId: request.id });
 
-    return { requestId: request.id, status: request.status };
+      return { requestId: request.id, status: request.status };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getStatus(requestId: string) {

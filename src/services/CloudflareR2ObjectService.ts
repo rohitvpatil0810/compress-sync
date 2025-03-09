@@ -62,6 +62,7 @@ class CloudflareR2ObjectService {
   // Gets a file from R2 S3
   async getFile(key: string) {
     try {
+      console.log(key);
       const command = new GetObjectCommand({
         Bucket: r2Config.bucket,
         Key: key,

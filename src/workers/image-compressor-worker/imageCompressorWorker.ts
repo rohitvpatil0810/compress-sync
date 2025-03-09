@@ -7,12 +7,13 @@ import { Status } from ".prisma/client";
 import sharp from "sharp/lib";
 import CloudflareR2ObjectService from "../../services/CloudflareR2ObjectService";
 import * as mime from "mime-types";
+import { sendWebhookEvent } from "../webhook-worker/sendWebhookEvent";
 
 const imageCompressorWorker = new Worker(
   "image-compressor-queue",
   async (job) => {
+    const requestId = job.data.requestId;
     try {
-      const requestId = job.data.requestId;
       Logger.info(`Processing request ${job.data.reqeustId}...`);
 
       const request = await prisma.request.update({
@@ -47,6 +48,8 @@ const imageCompressorWorker = new Worker(
       });
 
       Logger.info(`Request ${requestId} completed.`);
+      Logger.info(`Sending request ${requestId} to webhook...`);
+      await sendWebhookEvent(requestId, Status.COMPLETED, null);
     } catch (error: any) {
       Logger.error(`Error processing request ${job.data.reqeustId}: ${error}`);
       try {
@@ -57,6 +60,7 @@ const imageCompressorWorker = new Worker(
             error: error.toString(),
           },
         });
+        await sendWebhookEvent(requestId, Status.FAILED, error.toString());
       } catch (error) {
         Logger.error(
           `Error updating request ${job.data.reqeustId} to failed: ${error}`

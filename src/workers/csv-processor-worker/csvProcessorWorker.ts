@@ -8,6 +8,7 @@ import { csvSchema } from "./csvValidations";
 import { Status } from ".prisma/client";
 import { imageCompressorQueue } from "../../queues/imageCompressorQueue";
 import CloudflareR2ObjectService from "../../services/CloudflareR2ObjectService";
+import { sendWebhookEvent } from "../webhook-worker/sendWebhookEvent";
 
 interface CSVRow {
   serialNumber: number;
@@ -51,6 +52,7 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
       file.data
         .pipe(csv())
         .on("data", async (row: any) => {
+          console.log(row);
           const result = csvSchema.safeParse({
             serialNumber: Number(row["S. No."]),
             productName: row["Product Name"],
@@ -117,13 +119,20 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
       error
     );
     try {
-      await prisma.request.update({
+      const request = await prisma.request.update({
         where: { id: requestId },
         data: {
           status: Status.FAILED,
           error: error.toString() + " : " + JSON.stringify(error.cause),
         },
+        select: {
+          fileUrl: true,
+        },
       });
+      await CloudflareR2ObjectService.deleteFile(
+        request.fileUrl!.split("/").pop() || ""
+      );
+      await sendWebhookEvent(requestId, Status.FAILED, error);
     } catch (error) {
       Logger.error(
         `Error in updating request status to failed (requestId : ${requestId}): `,
