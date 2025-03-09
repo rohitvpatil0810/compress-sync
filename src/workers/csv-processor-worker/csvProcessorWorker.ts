@@ -52,7 +52,6 @@ const parseCSVFileAndSaveDataToDB = async (requestId: string) => {
       file.data
         .pipe(csv())
         .on("data", async (row: any) => {
-          console.log(row);
           const result = csvSchema.safeParse({
             serialNumber: Number(row["S. No."]),
             productName: row["Product Name"],
