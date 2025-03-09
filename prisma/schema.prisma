@@ -51,3 +51,23 @@ enum Status {
   COMPLETED
   FAILED
 }
+
+model Webhook {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  requestId      String        @unique @db.ObjectId
+  event          Status?
+  url            String
+  status         WebhookStatus @default(PENDING)
+  responseStatus Int?
+  response       String?
+  attempts       Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum WebhookStatus {
+  PENDING
+  FAILED
+  RETRYING
+  COMPLETED
+}
