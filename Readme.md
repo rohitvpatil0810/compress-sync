@@ -18,6 +18,10 @@ The project is deployed on Render: [CompressSync](https://compress-sync.onrender
 
 GitHub Repository: [CompressSync](https://github.com/rohitvpatil0810/compress-sync)
 
+## 📂 Workers Documentation
+
+Documentation Link - [Workers Documentation](https://docs.google.com/document/d/1Az20VZKQ0Jh813miIhVfwFP-xLNOplISvej3oxTd0r4/edit?usp=sharing)
+
 ## 🛠️ Tech Stack
 
 - **Backend**: Node.js, Express.js
